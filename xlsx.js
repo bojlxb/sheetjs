@@ -8196,7 +8196,6 @@ var sirphregex = /<(?:\w+:)?rPh.*?>([\s\S]*?)<\/(?:\w+:)?rPh>/g;
 function parse_si(x, opts) {
 	var html = opts ? opts.cellHTML : true;
 	var z = {};
-	if(!x) return null;
 	//var y;
 	/* 18.4.12 t ST_Xstring (Plaintext String) */
 	// TODO: is whitespace actually valid here?
@@ -8219,6 +8218,7 @@ function parse_si(x, opts) {
 /* 18.4 Shared String Table */
 var sstr0 = /<(?:\w+:)?sst([^>]*)>([\s\S]*)<\/(?:\w+:)?sst>/;
 var sstr1 = /<(?:\w+:)?(?:si|sstItem)>/g;
+var sstr1_2 = /<(?:\w+:)?(si|sstItem)\s*\/>/g;
 var sstr2 = /<\/(?:\w+:)?(?:si|sstItem)>/;
 function parse_sst_xml(data, opts) {
 	var s = ([]), ss = "";
@@ -8226,13 +8226,15 @@ function parse_sst_xml(data, opts) {
 	/* 18.4.9 sst CT_Sst */
 	var sst = data.match(sstr0);
 	if(sst) {
-		ss = sst[2].replace(sstr1,"").split(sstr2);
+		ss = sst[2].replace(sstr1,"").replace(sstr1_2,"</$1>").split(sstr2);
 		for(var i = 0; i != ss.length; ++i) {
 			var o = parse_si(ss[i].trim(), opts);
 			if(o != null) s[s.length] = o;
 		}
 		sst = parsexmltag(sst[1]); s.Count = sst.count; s.Unique = sst.uniqueCount;
 	}
+	if (s.length < Number(s.Count))
+		throw new Error("XML parsing error: strings count is wrong");
 	return s;
 }
 
