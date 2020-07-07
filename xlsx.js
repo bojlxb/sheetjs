@@ -8233,8 +8233,6 @@ function parse_sst_xml(data, opts) {
 		}
 		sst = parsexmltag(sst[1]); s.Count = sst.count; s.Unique = sst.uniqueCount;
 	}
-	if (s.length < Number(s.Count))
-		throw new Error("XML parsing error: strings count is wrong");
 	return s;
 }
 
